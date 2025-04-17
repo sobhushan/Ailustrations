@@ -81,7 +81,7 @@ def main_app():
                         st.session_state.history.append({
                             "prompt": updated_prompt,
                             "image_bytes": img_bytes.getvalue(),
-                            "feedback": feedback
+                            "feedback": []
                         })
                         entry["feedback"] = "processed"  
                         st.rerun()
@@ -96,18 +96,31 @@ def main_app():
             st.components.v1.html(f"""
                 <script>
                     localStorage.setItem("latestPrompt", {entry['prompt']!r});
-
                     localStorage.setItem("latestImage", {b64_image!r});
                     console.log("Latest prompt and image stored.");
                 </script>
             """, height=0)
 
     # ✅ Embed Tawk.to and send prompt/image as a chat message
-    if TAWK_PROPERTY_ID and TAWK_WIDGET_ID:
-        st.markdown("### 💬 Need Help? Chat with Support Below")
+    st.markdown("### 💬 Need Help? Chat with Support Below")
+    expert_toggle = st.toggle("💬 Not satisfied? Consult our expert", key="expert_toggle")
+    if expert_toggle and TAWK_PROPERTY_ID and TAWK_WIDGET_ID:
         st.components.v1.html(f"""
         <script type="text/javascript">
             var Tawk_API = Tawk_API || {{}}, Tawk_LoadStart = new Date();
+
+            // Auto-clear previous chat on load
+            Tawk_API.onLoad = function() {{
+                console.log("🔁 Resetting previous chat session.");
+                Tawk_API.endChat();
+                
+                // Optional: Send welcome message
+                setTimeout(function() {{
+                    Tawk_API.addEvent("WelcomeMessage", {{
+                        description: "👋 Hi there! Let us know how we can help with your generated image."
+                    }});
+                }}, 1000);
+            }};
 
             (function() {{
                 var s1 = document.createElement("script"),
@@ -119,63 +132,37 @@ def main_app():
                 s0.parentNode.insertBefore(s1, s0);
             }})();
 
-            function uploadToImgur(base64Image, callback) {{
-                 let base64Clean = base64Image;
-                if (base64Image.startsWith("data:image")) {{
-                    base64Clean = base64Image.split(",")[1];
-                }}
-                
-                fetch("https://api.imgur.com/3/image", {{
-                    method: "POST",
-                    headers: {{
-                        "Authorization": "Client-ID 0d7fa91852c4df6",
-                        "Content-Type": "application/json"
-                    }},
-                    body: JSON.stringify({{ image: base64Clean }})
-                }})
-                .then(response => response.json())
-                .then(data => {{
-                    if (data.success && data.data.link) {{
-                        callback(null, data.data.link);
-                    }} else {{
-                        callback("❌ Failed to upload to Imgur", null);
-                    }}
-                }})
-                .catch(err => {{
-                    callback(err.message, null);
-                }});
-            }}
-
+            // Send prompt & image to support via event
             function waitForTawk() {{
                 if (typeof Tawk_API.addEvent === "function") {{
-                    const prompt = localStorage.getItem("latestPrompt") || "No prompt";
-                    const base64 = localStorage.getItem("latestImage") || "";
-                    console.log("Prompt:", prompt);
-                    console.log("Base64 Image:", base64);
-                    if (!base64) {{
-                        console.log("⚠️ No image to send.");
+                    const prompt = localStorage.getItem("latestPrompt") || "No prompt provided";
+                    const image = localStorage.getItem("latestImage") || "";
+
+                    if (!image) {{
+                        console.warn("⚠️ No image found in localStorage.");
                         return;
                     }}
 
-                    uploadToImgur(base64, function(err, imgUrl) {{
-                        if (err) {{
-                            console.error(err);
-                            return;
+                    const confirmed = confirm("We will send your prompt and image to our expert. Continue?");
+                    if (!confirmed) {{
+                        console.log("❌ User cancelled expert request.");
+                        return;
+                    }}
+
+                    const preview = image.length > 100 ? image.slice(0, 100) + "..." : image;
+
+                    const message = "⚠️ New Request!!\\n" +
+                                    "📝 Prompt: " + prompt + "\\n" +
+                                    "📷 Image (Base64 Preview): " + preview;
+
+                    Tawk_API.addEvent("ImageGenerated", {{
+                        description: message
+                    }}, function(error) {{
+                        if (error) {{
+                            console.error("❌ Failed to send chat message:", error);
+                        }} else {{
+                            console.log("✅ Chat message sent with prompt and image preview.");
                         }}
-
-                        const message = "🖼️ New image generated<br>" +
-                                        "📝 <b>Prompt:</b> " + prompt + "<br>" +
-                                        "📷 <b>Image:</b><br><img src='" + imgUrl + "' width='250'/>";
-
-                        Tawk_API.addEvent("ImageGenerated", {{
-                            description: message
-                        }}, function(error) {{
-                            if (error) {{
-                                console.error("❌ Message Error:", error);
-                            }} else {{
-                                console.log("✅ Chat message sent with Imgur image");
-                            }}
-                        }});
                     }});
                 }} else {{
                     console.log("⏳ Waiting for Tawk API...");
@@ -183,10 +170,9 @@ def main_app():
                 }}
             }}
 
+            // Trigger message on page load (after Tawk is ready)
             window.addEventListener("load", function() {{
                 setTimeout(waitForTawk, 2000);
             }});
         </script>
         """, height=500)
-
-

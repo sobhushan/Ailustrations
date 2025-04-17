@@ -66,7 +66,7 @@ pip install -r requirements.txt
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-repo/imagino.git
+   git clone https://github.com/sobhushan/Imagino.git
    cd imagino
    ```
 
@@ -93,6 +93,7 @@ pip install -r requirements.txt
 - **User Authentication**: Secure login and signup using Firebase Authentication.
 - **Chat Support**: Integrated Tawk.to chat widget for expert consultation.
 
-## License
+##  Live Demo
+🌐 [Imagino App](https://imagino-image-gen-2025.streamlit.app/)
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+> 🛠️ _This app is under active development. Features may evolve or temporarily break._

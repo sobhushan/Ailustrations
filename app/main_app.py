@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 from auth.firebase_utils import save_history, load_history
 from firebase_admin import firestore # type: ignore
+import streamlit.components.v1 as components # type: ignore
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -42,6 +43,32 @@ def generate_image_from_prompt(prompt: str):
         return None, f"Unexpected error: {e}"
 
 def main_app():
+    st.markdown("""
+    <style>
+    div.stButton > button:first-child {
+        color: #ff4b4b;
+        border: #ff4b4b solid 2px;
+        border-radius: 6px;
+        padding: 0.5em 1em;
+    }
+    div.stButton > button:first-child:hover {
+        background-color: #ff1c1c;
+        color: white;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    components.html("""
+    <div id="scrollTarget"></div>
+    <script>
+        const scrollTarget = document.getElementById('scrollTarget');
+        const observer = new MutationObserver(() => {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+        observer.observe(scrollTarget, {attributes: true});
+    </script>
+    """, height=0)
+    
     st.markdown("<h1 style='text-align: left;'><span style='color:#6C63FF;'>Imagino ✨</span></h1>", unsafe_allow_html=True)
 
     if "history" not in st.session_state:
@@ -58,8 +85,14 @@ def main_app():
     if "show_confirm" not in st.session_state:
         st.session_state.show_confirm = False
 
-    if st.sidebar.button("🔄 Start New Session"):
+    if st.sidebar.button("📝 Start New Session"):
         st.session_state.show_confirm = True
+        components.html("""
+            <script>
+                document.getElementById('scrollTarget')?.setAttribute('data-scroll', Date.now());
+            </script>
+        """, height=0)
+
 
     # Delete Firebase data
     def delete_user_history_from_firebase(email):
@@ -79,9 +112,10 @@ def main_app():
         st.success("✅ New session started. History deleted.")
         st.rerun()
 
-    # Prompt Builder with Toggle Switch
     # Prompt Builder — only show if image hasn't been generated yet
-    if not st.session_state.image_generated:
+    if "prompt_builder_visible" not in st.session_state:
+        st.session_state.prompt_builder_visible = False
+    if st.session_state.prompt_builder_visible:
         st.sidebar.markdown("---")
         st.sidebar.title("🛠 Prompt Builder")
         use_builder = st.sidebar.toggle("Enable Builder", value=False, key="toggle_builder")
@@ -119,6 +153,7 @@ def main_app():
 
             if "user" in st.session_state and "email" in st.session_state["user"]:
                 save_history(st.session_state["user"]["email"], st.session_state.history)
+            st.session_state.prompt_builder_visible = False
 
 
     # Confirmation dialog in main content
@@ -127,10 +162,10 @@ def main_app():
         st.warning("Are you sure you want to start a new session? This will delete all your previous image and prompt history from the database.")
         col1, col2 = st.columns([1, 1])
         with col1:
-            if st.button("✅ Yes, Delete"):
+            if st.button("✅ Yes, Delete", key="yes_button", help="Click to delete"):
                 proceed_reset()
         with col2:
-            if st.button("❌ Cancel"):
+            if st.button("❎ No, Cancel", key="no_button", help="Click to cancel"):
                 cancel_reset()
 
     if st.session_state.history:

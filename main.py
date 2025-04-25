@@ -5,7 +5,7 @@ from auth.firebase_auth import login, signup, verify_id_token, refresh_id_token
 from app import info_page
 from datetime import datetime, timedelta
 
-st.set_page_config(page_title="Imagino - Login", layout="centered")
+st.set_page_config(page_title="Imagino", layout="centered")
 
 def auth_ui():
     with st.container():
@@ -65,6 +65,28 @@ def refresh_session_token():
                 st.session_state["user"]["refreshToken"] = res["refresh_token"]
 
 def main():
+    st.markdown("""
+        <style>
+            .stSidebar .stRadio p {
+                color: white; 
+            }
+
+            .stSidebar .stRadio p:hover {
+                color: #4B36F7; 
+            }
+            .stSidebar .stRadio p:active {
+                background-color: #6C63FF;  /* Change background on click */
+                color: white;
+            }
+
+            /* Change active button color */
+            .stSidebar .stRadio .st-aqAHzv label {
+                background-color: #6C63FF;
+                color: white;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
     # Get refresh_token from URL query parameters
     params = st.query_params
     refresh_token_param = params.get("refresh_token")

@@ -3,19 +3,25 @@ import firebase_admin # type: ignore
 from firebase_admin import credentials, firestore # type: ignore
 import os
 import base64
+import json
 from io import BytesIO
-from google.cloud import firestore
 from PIL import Image # type: ignore
+from dotenv import load_dotenv
+load_dotenv()
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\HP INDIA\Desktop\TA\image_ai_expert\Imagino\firebase\firebase_key.json"
+FIREBASE_KEY_B64 = os.getenv("FIREBASE_KEY_B64")
+if FIREBASE_KEY_B64 is None:
+    raise ValueError("FIREBASE_KEY_B64 is not set in environment variables or Streamlit secrets.")
+
+FIREBASE_KEY_DICT = json.loads(base64.b64decode(FIREBASE_KEY_B64).decode("utf-8"))
 
 # Initialize Firebase if not initialized already
 if not firebase_admin._apps:
-    cred = credentials.Certificate("firebase/firebase_key.json")
+    cred = credentials.Certificate(FIREBASE_KEY_DICT)
     firebase_admin.initialize_app(cred)
 
 # Correct initialization of Firestore Client
-db = firestore.Client()
+db = firestore.client()
 
 def compress_image(image_bytes, quality=30):
     try:
@@ -97,67 +103,3 @@ def load_history(email):
         return decoded_history
 
     return []
-
-
-
-# def save_history(email, history):
-#     formatted = []
-    
-#     for entry in history:
-#         # Ensure valid fields
-#         if "prompt" not in entry or "feedback" not in entry or "image_bytes" not in entry:
-#             continue
-        
-#         image_bytes = entry["image_bytes"]
-
-#         # Convert image to bytes if needed
-#         if hasattr(image_bytes, "getvalue"):
-#             image_bytes = image_bytes.getvalue()
-#         elif isinstance(image_bytes, memoryview):
-#             image_bytes = bytes(image_bytes)
-#         elif not isinstance(image_bytes, bytes):
-#             continue  # skip invalid image formats
-
-#         # Base64 encode the image bytes
-#         image_base64 = base64.b64encode(image_bytes).decode("utf-8")
-
-#         # Construct the formatted entry
-#         formatted_entry = {
-#             "prompt": entry["prompt"],
-#             "feedback": entry["feedback"],
-#             "image_base64": image_base64
-#         }
-        
-#         formatted.append(formatted_entry)
-
-#     # Check if the formatted data is too large
-#     if len(formatted) > 0:
-#         user_doc = db.collection("users").document(email)
-#         user_doc.set({"history": formatted})
-#     print(f"History saved for {email}. Total entries: {len(formatted)}")
-#     print(f"Formatted history: {formatted}")
-
-# def load_history(email):
-#     user_doc = db.collection("users").document(email).get()
-#     if user_doc.exists:
-#         raw_history = user_doc.to_dict().get("history", [])
-#         decoded_history = []
-
-#         for item in raw_history:
-#             if "prompt" not in item or "feedback" not in item or "image_base64" not in item:
-#                 continue
-
-#             try:
-#                 image_bytes = base64.b64decode(item["image_base64"])
-#             except Exception:
-#                 continue  # skip if decoding fails
-
-#             decoded_history.append({
-#                 "prompt": item["prompt"],
-#                 "feedback": item["feedback"],
-#                 "image_bytes": image_bytes
-#             })
-
-#         return decoded_history
-
-#     return []

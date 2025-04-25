@@ -3,3 +3,4 @@ firebase_key.json
 firebase-adminsdk.json
 __pycache__/
 *.pyc
+firebase_key.b64

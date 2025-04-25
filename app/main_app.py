@@ -6,6 +6,8 @@ from PIL import Image # type: ignore
 from io import BytesIO
 import os
 from dotenv import load_dotenv
+from auth.firebase_utils import save_history, load_history
+from firebase_admin import firestore # type: ignore
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -18,28 +20,84 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
+def generate_image_from_prompt(prompt: str):
+    try:
+        response = requests.post(API_URL, headers=HEADERS, json={"inputs": prompt}, timeout=30)
+        response.raise_for_status()
+
+        image = Image.open(BytesIO(response.content))
+        img_bytes = BytesIO()
+        image.save(img_bytes, format="PNG")
+        img_bytes.seek(0)
+
+        return img_bytes.getvalue(), None
+
+    except requests.exceptions.HTTPError as http_err:
+        return None, f"HTTP error: {http_err} — {response.text}"
+    except requests.exceptions.Timeout:
+        return None, "Request timed out. Please try again."
+    except requests.exceptions.RequestException as err:
+        return None, f"Something went wrong: {err}"
+    except Exception as e:
+        return None, f"Unexpected error: {e}"
+
 def main_app():
-    # st.set_page_config(page_title="Imagino", layout="centered")
     st.markdown("<h1 style='text-align: left;'><span style='color:#6C63FF;'>Imagino ✨</span></h1>", unsafe_allow_html=True)
 
     if "history" not in st.session_state:
+        if "user" in st.session_state and "email" in st.session_state["user"]:
+            st.session_state.history = load_history(st.session_state["user"]["email"])
+        else:
+            st.session_state.history = []
+    if "image_generated" not in st.session_state:
+        st.session_state.image_generated = False
+
+
+    # Sidebar button
+    st.sidebar.markdown("---")
+    if "show_confirm" not in st.session_state:
+        st.session_state.show_confirm = False
+
+    if st.sidebar.button("🔄 Start New Session"):
+        st.session_state.show_confirm = True
+
+    # Delete Firebase data
+    def delete_user_history_from_firebase(email):
+        db = firestore.client()
+        doc_ref = db.collection("history").document(email)
+        if doc_ref.get().exists:
+            doc_ref.delete()
+
+    def cancel_reset():
+        st.session_state.show_confirm = False
+
+    def proceed_reset():
+        if "user" in st.session_state and "email" in st.session_state["user"]:
+            delete_user_history_from_firebase(st.session_state["user"]["email"])
         st.session_state.history = []
+        st.session_state.show_confirm = False
+        st.success("✅ New session started. History deleted.")
+        st.rerun()
 
     # Prompt Builder with Toggle Switch
-    st.sidebar.title("🛠 Prompt Builder")
-    use_builder = st.sidebar.toggle("Enable Builder", value=False, key="toggle_builder")
+    # Prompt Builder — only show if image hasn't been generated yet
+    if not st.session_state.image_generated:
+        st.sidebar.markdown("---")
+        st.sidebar.title("🛠 Prompt Builder")
+        use_builder = st.sidebar.toggle("Enable Builder", value=False, key="toggle_builder")
 
-    # Only show builder options if the switch is ON
-    style, mood, use_case = "", "", ""
-    if use_builder:
-        style = st.sidebar.selectbox("Style", ["Realistic", "Cartoon", "Digital Art", "Abstract"])
-        mood = st.sidebar.selectbox("Mood", ["Happy", "Dark", "Surreal", "Peaceful"])
-        use_case = st.sidebar.selectbox("Use Case", ["Marketing Banner", "Product Mockup", "Team Avatar", "Wallpaper"])
-
+        style, mood, use_case = "", "", ""
+        if use_builder:
+            style = st.sidebar.selectbox("Style", ["Realistic", "Cartoon", "Digital Art", "Oil Painting", "Abstract"])
+            mood = st.sidebar.selectbox("Mood", ["Vibrant","Melancholic","Happy", "Dark", "Surreal", "Peaceful"])
+            use_case = st.sidebar.selectbox("Use Case", ["Poster", "Marketing Banner", "Product Mockup", "Team Avatar", "Wallpaper"])
+    else:
+        # Prompt builder is disabled after first image
+        style = mood = use_case = ""
 
     # st.subheader("Write your own prompt or use the builder from the sidebar.")
     st.markdown("<h5 style='text-align: left; color:gray;'>Write your own prompt or use the builder from the sidebar and generate your image just the way you want!</h5>", unsafe_allow_html=True)
-    user_prompt = st.text_input("Enter your prompt", placeholder="e.g. a futuristic cyberpunk city at night")
+    user_prompt = st.text_input("💡Enter your prompt", placeholder="e.g. a futuristic cyberpunk city at night")
 
     if st.button("✨ Generate Image"):
         # final_prompt = f"{style}, {mood}, {use_case}. {user_prompt}" if user_prompt else f"{style}, {mood}, {use_case}"
@@ -47,19 +105,33 @@ def main_app():
         final_prompt = ". ".join(parts)
 
         with st.spinner("Generating image..."):
-            response = requests.post(API_URL, headers=HEADERS, json={"inputs": final_prompt})
-            if response.status_code == 200:
-                image = Image.open(BytesIO(response.content))
-                img_bytes = BytesIO()
-                image.save(img_bytes, format="PNG")
-                img_bytes.seek(0)
-                st.session_state.history.append({
-                    "prompt": final_prompt,
-                    "image_bytes": img_bytes.getvalue(),
-                    "feedback": ""
-                })
-            else:
-                st.error(f"Error {response.status_code}: {response.text}")
+            image_bytes, error = generate_image_from_prompt(final_prompt)
+
+        if error:
+            st.error(error)
+        elif image_bytes:
+            st.session_state.image_generated = True
+            st.session_state.history.append({
+                "prompt": final_prompt,
+                "image_bytes": image_bytes,
+                "feedback": ""
+            })
+
+            if "user" in st.session_state and "email" in st.session_state["user"]:
+                save_history(st.session_state["user"]["email"], st.session_state.history)
+
+
+    # Confirmation dialog in main content
+    if st.session_state.show_confirm:
+        st.markdown("---")
+        st.warning("Are you sure you want to start a new session? This will delete all your previous image and prompt history from the database.")
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            if st.button("✅ Yes, Delete"):
+                proceed_reset()
+        with col2:
+            if st.button("❌ Cancel"):
+                cancel_reset()
 
     if st.session_state.history:
         st.markdown("---")
@@ -71,24 +143,24 @@ def main_app():
             feedback = st.text_input("Want changes?", "", key=f"feedback-{idx}")
             if feedback and not entry["feedback"]:  
                 updated_prompt = entry["prompt"] + ". " + feedback
-                with st.spinner("Regenerating..."):
-                    response = requests.post(API_URL, headers=HEADERS, json={"inputs": updated_prompt})
-                    if response.status_code == 200:
-                        image = Image.open(BytesIO(response.content))
-                        img_bytes = BytesIO()
-                        image.save(img_bytes, format="PNG")
-                        img_bytes.seek(0)
-                        st.session_state.history.append({
-                            "prompt": updated_prompt,
-                            "image_bytes": img_bytes.getvalue(),
-                            "feedback": []
-                        })
-                        entry["feedback"] = "processed"  
-                        st.rerun()
-                    else:
-                        st.error(f"Error {response.status_code}: {response.text}")
 
-            st.markdown("---")
+                with st.spinner("Regenerating..."):
+                    image_bytes, error = generate_image_from_prompt(updated_prompt)
+
+                if error:
+                    st.error(error)
+                elif image_bytes:
+                    st.session_state.history.append({
+                        "prompt": updated_prompt,
+                        "image_bytes": image_bytes,
+                        "feedback": []
+                    })
+
+                    if "user" in st.session_state and "email" in st.session_state["user"]:
+                        save_history(st.session_state["user"]["email"], st.session_state.history)
+
+                    entry["feedback"] = "processed"
+                    st.rerun()
 
             # Save to localStorage
             b64_image = base64.b64encode(entry["image_bytes"]).decode("utf-8")
@@ -102,8 +174,10 @@ def main_app():
             """, height=0)
 
     # ✅ Embed Tawk.to and send prompt/image as a chat message
-    st.markdown("### 💬 Need Help? Chat with Support Below")
-    expert_toggle = st.toggle("💬 Not satisfied? Consult our expert", key="expert_toggle")
+    st.markdown("---")
+    st.markdown("## 💬 Not satisfied? Consult our Experts")
+
+    expert_toggle = st.toggle("👨‍💻 Toggle to send your image and prompt to our expert.", key="expert_toggle")
     if expert_toggle and TAWK_PROPERTY_ID and TAWK_WIDGET_ID:
         st.components.v1.html(f"""
         <script type="text/javascript">
@@ -117,7 +191,7 @@ def main_app():
                 // Optional: Send welcome message
                 setTimeout(function() {{
                     Tawk_API.addEvent("WelcomeMessage", {{
-                        description: "👋 Hi there! Let us know how we can help with your generated image."
+                        description: "👋 Let us help you perfect your image!"
                     }});
                 }}, 1000);
             }};
@@ -143,7 +217,7 @@ def main_app():
                         return;
                     }}
 
-                    const confirmed = confirm("We will send your prompt and image to our expert. Continue?");
+                    const confirmed = confirm("⚠️ We will send your prompt and image to our expert. Are you sure you want to continue?");
                     if (!confirmed) {{
                         console.log("❌ User cancelled expert request.");
                         return;
@@ -151,9 +225,9 @@ def main_app():
 
                     const preview = image.length > 100 ? image.slice(0, 100) + "..." : image;
 
-                    const message = "⚠️ New Request!!\\n" +
-                                    "📝 Prompt: " + prompt + "\\n" +
-                                    "📷 Image (Base64 Preview): " + preview;
+                    const message = "🧠 Image Help Request\\n" +
+                                    "Prompt: " + prompt + "\\n" +
+                                    "Image (Base64 Preview): " + preview;
 
                     Tawk_API.addEvent("ImageGenerated", {{
                         description: message

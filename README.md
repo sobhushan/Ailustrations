@@ -1,6 +1,6 @@
 # Imagino
 
-Imagino is a Streamlit-based application that allows users to generate AI-powered images using Hugging Face's Stable Diffusion model. It also includes Firebase authentication for user login and signup.
+Imagino is a Streamlit-based application that allows users to generate AI-powered images using Hugging Face's Stable Diffusion model. It also includes Firebase authentication for user login and signup. The application is designed with a user-friendly interface and supports real-time chat for expert consultation.
 
 ## Project Structure
 
@@ -13,10 +13,18 @@ Imagino/
 ├── requirements.txt      # Python dependencies
 ├── app/
 │   ├── main_app.py       # Main application logic for image generation
+│   ├── info_page.py      # Additional information page
 │   └── __pycache__/      # Compiled Python files
 ├── auth/
 │   ├── firebase_auth.py  # Firebase authentication logic
+│   ├── firebase_utils.py # Firebase utility functions
 │   └── __pycache__/      # Compiled Python files
+├── firebase/
+│   ├── firebase_key.json # Firebase service account key
+│   └── firebase-adminsdk.json # Firebase admin SDK configuration
+├── mascot.png            # Application mascot image
+├── set_background.py     # Script to set background images
+├── clearhistory.py       # Script to clear user history
 ```
 
 ## Configuration
@@ -53,6 +61,7 @@ streamlit
 requests
 python-dotenv
 pillow
+firebase-admin
 ```
 
 Install them using the following command:
@@ -89,11 +98,22 @@ pip install -r requirements.txt
 ## Features
 
 - **AI Image Generation**: Generate images using Hugging Face's Stable Diffusion model.
-- **Prompt Builder**: Customize prompts with style, mood, and use case options.
 - **User Authentication**: Secure login and signup using Firebase Authentication.
 - **Chat Support**: Integrated Tawk.to chat widget for expert consultation.
+- **History Management**: Clear chat history and start a new session with a single click.
+
+## Future Improvements
+
+- **Enhanced AI Models**: Integrate more advanced AI models, such as those from OpenAI, for better image generation.
+- **Improved Chat Interface**: Enhance the chat interface and expert consultation features for a more seamless user experience.
+- **Chat History Storage**: With better storage solutions, provide users the option to save and revisit old chats.
+- **Prompt Builder**: Add a prompt builder to allow users to customize prompts with style, mood, and use case options.
+- **User Profiles**: Add user profile management features.
+- **Mobile Optimization**: Improve the app's responsiveness for mobile devices.
 
 ##  Live Demo
 🌐 [Imagino App](https://imagino-image-gen-2025.streamlit.app/)
 
 > 🛠️ _This app is under active development. Features may evolve or temporarily break._
+
+

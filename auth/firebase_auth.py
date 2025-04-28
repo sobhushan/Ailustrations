@@ -6,7 +6,6 @@ import base64
 import firebase_admin # type: ignore
 from firebase_admin import credentials, auth as admin_auth # type: ignore
 from dotenv import load_dotenv
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:\Users\HP INDIA\Desktop\TA\image_ai_expert\Imagino\firebase\firebase_key.json"
 
 load_dotenv()
 FIREBASE_API_KEY = os.getenv("FIREBASE_API_KEY")

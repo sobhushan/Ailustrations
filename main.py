@@ -8,8 +8,23 @@ from set_background import set_gradient_background
 import time
 
 # Page config
-st.set_page_config(page_title="Imagino", layout="wide")
+st.set_page_config(page_title="Ailustrations", 
+                   layout="wide",
+                   page_icon="favicon.png",)
 set_gradient_background()
+
+st.markdown(
+    """
+    <style>
+    hr {
+        border: none !important;
+        border-top: 0.5px solid #67686e !important; 
+        margin: 8px 0 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # --- Navbar ---
 def navbar():
@@ -17,7 +32,7 @@ def navbar():
         """
         <style>
         .block-container {
-            padding-top: 3rem;
+            padding-top: 1.2rem;
         }
         .navbar {
             display: flex;
@@ -43,7 +58,7 @@ def navbar():
     nav_col1, nav_col2 = st.columns([8, 2])
 
     # with nav_col1:
-    #     st.markdown("<h1 style='color: white; text-align: left; font-size: 70px;'>Welcome to <span style='color:#6C63FF;'>Imagino</span></h1>", unsafe_allow_html=True)
+    #     st.markdown("<h1 style='color: white; text-align: left; font-size: 70px;'>Welcome to <span style='color:#6C63FF;'>Ailustrations</span></h1>", unsafe_allow_html=True)
 
     with nav_col2:
         col1, col2 = st.columns(2)
@@ -51,23 +66,25 @@ def navbar():
             if st.button("Login", key="navbar_login"):
                 st.session_state.show_login = True
                 st.session_state.show_signup = False
+                st.session_state.scroll_to = "login"
                 st.rerun()
         with col2:
             if st.button("Get Started", key="navbar_signup"):
                 st.session_state.show_signup = True
                 st.session_state.show_login = False
+                st.session_state.scroll_to = "sign-up"
                 st.rerun()
 
 # --- Hero Section (only for not logged-in users) ---
 def hero_section():
     col1, col2 = st.columns(2, gap="large")
     with col1:
-        st.markdown("<h1 style='color: white; text-align: left; font-size: 70px;'>Welcome to <span style='color:#6C63FF;'>Imagino</span></h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='color: white; text-align: left; font-size: 50px;'>Welcome to <span style='color:#6C63FF; font-size: 60px;'>Ailustrations</span></h1>", unsafe_allow_html=True)
         st.markdown("<h3 style='color: #FFD700;text-align: left;'>Turn your ideas into stunning AI-generated images instantly!</h3>", unsafe_allow_html=True)
         st.markdown(
             """
             <p style='color: #f0f0f0; font-size: 1.2rem; text-align: left;'>
-            Imagino is your AI-powered tool to turn ideas into stunning visuals in just a few clicks. Whether you're a designer, marketer, or a creative mind, Imagino helps you unleash your imagination — with real-time expert consultation to refine and perfect your results.
+            Ailustrations is your AI-powered tool to turn ideas into stunning visuals in just a few clicks. Whether you're a designer, marketer, or a creative mind, Ailustrations helps you unleash your imagination — with real-time expert consultation to refine and perfect your results.
             </p>
             <br>
             """,
@@ -76,7 +93,7 @@ def hero_section():
         if st.button("Get Started", key="hero_get_started"):
             st.session_state.show_signup = True
             st.session_state.show_login = False
-            st.session_state.trigger_scroll = True
+            st.session_state.scroll_to = "sign-up"
             st.rerun()
 
         st.write("---")
@@ -89,7 +106,10 @@ def hero_section():
 
 # --- Authentication UI (merged clean version) ---
 def auth_ui():
+    
     if st.session_state.get('show_login', False):
+        st.components.v1.html('<div id="login" style="height:0;"></div>', height=0)
+        # st.markdown('<div id="login" style="height:0;"></div>', unsafe_allow_html=True)
         with st.form(key="login_form"):
             st.write("### Login")
             email = st.text_input("Enter your email", placeholder="name@example.com", key="login_email")
@@ -117,6 +137,7 @@ def auth_ui():
                         st.error(f"❌ {res.json()['error']['message']}")
 
     if st.session_state.get('show_signup', False):
+        st.markdown('<div id="sign-up" style="height:0;"></div>', unsafe_allow_html=True)
         with st.form(key="signup_form"):
             st.write("### Sign Up")
             email = st.text_input("Enter your email", placeholder="name@example.com", key="signup_email")
@@ -131,6 +152,23 @@ def auth_ui():
                         st.session_state.show_login = True
                     else:
                         st.error(f"❌ {res.json()['error']['message']}")
+
+# Trigger scroll after rerun
+if "scroll_to" in st.session_state:
+    section = st.session_state.scroll_to
+    st.components.v1.html(f"""
+        <div style="position: absolute; top: 0; height: 0;">
+        <script>
+        window.addEventListener('DOMContentLoaded', function() {{
+            const el = window.parent.document.getElementById("{section}");
+            if (el) {{
+                el.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
+            }}
+        }});
+        </script>
+        </div>
+    """, height=0)
+    del st.session_state.scroll_to
 
 # --- Handle Session ---
 if "show_login" not in st.session_state:
@@ -172,19 +210,37 @@ def main():
         }
         .stButton > button:hover {
             background: linear-gradient(135deg, #4B36F7 0%, #6C63FF 100%);
+            color: #f0f0f0;
+        }
+        .stButton > button:focus,
+        .stButton > button:active {
+            background: linear-gradient(135deg, #4B36F7 0%, #6C63FF 100%);
+            color: #f0f0f0 !important;
         }
         h1, h2 {
             color: white;
             font-size: 3em;
         }
-        p {
-            color: #f0f0f0;
-            font-size: 1.2em;
-        }
+        # p {
+        #     color: white;
+        # }
         .stForm {
             background-color: rgba(255, 255, 255, 0.1);
             padding: 2rem;
             border-radius: 12px;
+        }
+        .stForm button p {
+            color: black; /* Default for light mode */
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .stForm button p {
+                color: white;
+            }
+        }
+
+        .stForm p, .stForm h3 {
+            color : white;
         }
         </style>
         """,
@@ -230,7 +286,22 @@ def main():
 
         # Sidebar
         with st.sidebar:
-            st.markdown(f"👤 Logged in as: `{user['email']}`")
+            st.markdown(f"👤 Logged in as: ")
+            st.markdown(
+            f"""
+            <div style="
+                background-color: #1a1c24;
+                color: green;
+                padding: 8px 12px;
+                border-radius: 8px;
+                display: inline-block;
+                font-size: 14px;
+            ">
+                {user['email']}
+            </div>
+            """,
+            unsafe_allow_html=True
+            )
             nav_options = ["Main App", "About & Help", "Logout"]
             nav_choice = st.radio(
                 "---",

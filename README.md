@@ -20,7 +20,6 @@ Imagino/
 │   └── __pycache__/      # Compiled Python files
 ├── firebase/
 │   ├── firebase_key.json # Firebase service account key
-│   └── firebase-adminsdk.json # Firebase admin SDK configuration
 ├── mascot.png            # Application mascot image
 ├── set_background.py     # Script to set background images
 ├── clearhistory.py       # Script to clear user history

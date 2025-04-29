@@ -21,6 +21,10 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
+# Function to scroll to top using JS
+def scroll_to_top():
+    st.experimental_js("window.scrollTo({ top: 0, behavior: 'smooth' });")
+
 def generate_image_from_prompt(prompt: str):
     try:
         response = requests.post(API_URL, headers=HEADERS, json={"inputs": prompt}, timeout=30)
@@ -41,12 +45,47 @@ def generate_image_from_prompt(prompt: str):
         return None, f"Something went wrong: {err}"
     except Exception as e:
         return None, f"Unexpected error: {e}"
+    
+if "scroll_to" in st.session_state:
+    section = st.session_state.scroll_to
+    st.components.v1.html(f"""
+        <div style="position: absolute; top: 0; height: 0;">
+        <script>
+        window.addEventListener('DOMContentLoaded', function() {{
+            const el = window.parent.document.getElementById("{section}");
+            if (el) {{
+                el.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
+            }}
+        }});
+        </script>
+        </div>
+    """, height=0)
+    del st.session_state.scroll_to
 
 def main_app():
     st.markdown("""
     <style>
         [data-testid="stAppViewContainer"] {
             background: linear-gradient(180deg, #000000, #000000, #3533cd); 
+        }
+        section[data-testid="stSidebar"] {
+            background-color: #31333f !important;
+        }
+        .stDownloadButton button {
+            background: linear-gradient(135deg, #000000,  #3533cd) !important; 
+            border: 1px solid #3533cd !important;
+            color: white !important; 
+        }
+        .stDownloadButton button:hover {
+            opacity: 0.8 !important;
+            border: 1px solid #1a1c24 !important;
+            color: white !important; 
+        }
+        h2, h3 {
+            color: white !important;
+        }
+        p {
+            color: white;
         }
         div.stButton > button:first-child {
             width: 100%;
@@ -61,25 +100,14 @@ def main_app():
         div.stButton > button:first-child:hover {
             background: linear-gradient(135deg, #4B36F7 0%, #6C63FF 100%);
         }
+        
     </style>
     """, unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([1, 3, 1])
 
     with col2:
-        st.markdown('<a name="imagino"></a>', unsafe_allow_html=True)
-        st.markdown("<h1 style='text-align: left;'><span style='color:#6C63FF;'>Imagino</span></h1>", unsafe_allow_html=True)
-        st.markdown("""
-            <script>
-            document.addEventListener("DOMContentLoaded", function(event) {
-                if (window.location.hash === "#imagino") {
-                    setTimeout(function() {
-                        document.querySelector('a[name="imagino"]').scrollIntoView({ behavior: 'smooth' });
-                    }, 200); 
-                }
-            });
-            </script>
-        """, unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: left;'><span style='color:#6C63FF;'>Ailustrations</span></h1>", unsafe_allow_html=True)
 
         if "history" not in st.session_state:
             if "user" in st.session_state and "email" in st.session_state["user"]:
@@ -97,13 +125,8 @@ def main_app():
 
         if st.sidebar.button("Start New Session"):
             st.session_state.show_confirm = True
-            st.markdown("""
-                    <script>
-                        window.location.hash = "imagino";
-                    </script>
-                """, unsafe_allow_html=True)
+            st.session_state.scroll_to = "top"
             st.rerun()
-
 
 
         # Delete Firebase data
@@ -143,7 +166,7 @@ def main_app():
 
         st.markdown("<h5 style='text-align: left; color:white;'>Write your prompt and generate your image just the way you want!</h5>", unsafe_allow_html=True)
         user_prompt = st.text_input("💡Enter your prompt", placeholder="e.g. a futuristic cyberpunk city at night")
-
+        st.markdown('<div id="top"></div>', unsafe_allow_html=True)
         if st.button("✨ Generate Image"):
             # final_prompt = f"{style}, {mood}, {use_case}. {user_prompt}" if user_prompt else f"{style}, {mood}, {use_case}"
             parts = [p for p in [style, mood, use_case, user_prompt] if p]
@@ -170,7 +193,7 @@ def main_app():
         # Confirmation dialog in main content
         if st.session_state.show_confirm:
             with st.container():
-                st.write("---")
+                st.markdown("---")
                 st.markdown("""
                     <style>
                     .confirm-box {
@@ -201,7 +224,7 @@ def main_app():
                 """, unsafe_allow_html=True)
 
                 # Better two-button layout
-                confirm_col1, confirm_col2, confirm_col3 = st.columns([1, 2, 1])
+                confirm_col1, confirm_col2, confirm_col3 = st.columns([1, 1, 1])
 
                 with confirm_col1:
                     if st.button("✅ Yes, Start New", key="confirm_yes"):

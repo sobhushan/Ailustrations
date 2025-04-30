@@ -13,20 +13,22 @@ st.set_page_config(page_title="Ailustrations",
                    layout="wide",
                    page_icon="favicon.png",)
 
-# Inject Google Analytics script
-st.markdown(
+# Google Analytics tracking using iframe injection
+components.html(
     """
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZS9XFH94QK"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-ZS9XFH94QK');
-    </script>
+    <iframe srcdoc="
+      <script async src='https://www.googletagmanager.com/gtag/js?id=G-ZS9XFH94QK'></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-ZS9XFH94QK');
+      </script>
+    " style="display:none;"></iframe>
     """,
-    unsafe_allow_html=True
+    height=0,
 )
+
 
 components.html("""
   <head>

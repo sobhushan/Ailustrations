@@ -32,8 +32,7 @@ components.html("""
 # Page config
 st.set_page_config(page_title="Ailustrations", 
                    layout="wide",
-                   page_icon="favicon.png",
-                   alt="AI Image Generator with Human Touch",)
+                   page_icon="favicon.png")
 set_gradient_background()
 
 st.markdown(

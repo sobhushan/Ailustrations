@@ -21,12 +21,8 @@ components.html("""
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-ZS9XFH94QK');
-
-  // Optional: Force a manual page view
-  gtag('event', 'page_view', {
-      page_title: document.title,
-      page_path: window.location.pathname
+   gtag('config', 'G-ZS9XFH94QK', {
+    'debug_mode': true  // ✅ Helps surface issues in Analytics debug
   });
 
   console.log("✅ Google Analytics initialized with ID: G-ZS9XFH94QK");

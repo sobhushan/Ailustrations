@@ -14,20 +14,24 @@ st.set_page_config(page_title="Ailustrations",
                    page_icon="favicon.png",)
 
 # Google Analytics tracking using iframe injection
-components.html(
-    """
-    <iframe srcdoc="
-      <script async src='https://www.googletagmanager.com/gtag/js?id=G-ZS9XFH94QK'></script>
-      <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-ZS9XFH94QK');
-      </script>
-    " style="display:none;"></iframe>
-    """,
-    height=0,
-)
+components.html("""
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZS9XFH94QK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ZS9XFH94QK');
+
+  // Optional: Force a manual page view
+  gtag('event', 'page_view', {
+      page_title: document.title,
+      page_path: window.location.pathname
+  });
+
+  console.log("✅ Google Analytics initialized with ID: G-ZS9XFH94QK");
+</script>
+""", height=0)
 
 
 components.html("""

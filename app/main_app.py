@@ -63,6 +63,9 @@ if "scroll_to" in st.session_state:
     del st.session_state.scroll_to
 
 def main_app():
+    st.components.v1.html("""
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    """, height=0)
     st.markdown("""
     <style>
         [data-testid="stAppViewContainer"] {
@@ -165,7 +168,7 @@ def main_app():
             style = mood = use_case = ""
 
         st.markdown("<h5 style='text-align: left; color:white;'>Write your prompt and generate your image just the way you want!</h5>", unsafe_allow_html=True)
-        user_prompt = st.text_input("💡Enter your prompt", placeholder="e.g. a futuristic cyberpunk city at night")
+        user_prompt = st.text_input("Enter your prompt", placeholder="e.g. a futuristic cyberpunk city at night")
         st.markdown('<div id="top"></div>', unsafe_allow_html=True)
         if st.button("✨ Generate Image"):
             # final_prompt = f"{style}, {mood}, {use_case}. {user_prompt}" if user_prompt else f"{style}, {mood}, {use_case}"
@@ -240,8 +243,8 @@ def main_app():
             for idx, entry in enumerate(st.session_state.history):
                 st.markdown(f"**Prompt:** {entry['prompt']}")
                 st.image(entry["image_bytes"], use_container_width=True)
-                st.download_button("📥 Download", entry["image_bytes"], f"ai_image_{idx+1}.png", "image/png", key=f"download-{idx}")
-                feedback = st.text_input("Want changes?", "", key=f"feedback-{idx}")
+                st.download_button("Download Image", entry["image_bytes"], f"ai_image_{idx+1}.png", "image/png", key=f"download-{idx}")
+                feedback = st.text_input("Want changes?", placeholder="Add something to improve or refine the image...", key=f"feedback-{idx}")
                 if feedback and not entry["feedback"]:  
                     updated_prompt = entry["prompt"] + ". " + feedback
 
@@ -278,7 +281,7 @@ def main_app():
         st.markdown("---")
         st.markdown("## 💬 Not satisfied? Consult our Experts")
 
-        expert_toggle = st.toggle("👨‍💻 Toggle to send your image and prompt to our expert.", key="expert_toggle")
+        expert_toggle = st.toggle("Toggle to send your image and prompt to our expert.", key="expert_toggle")
         if expert_toggle and TAWK_PROPERTY_ID and TAWK_WIDGET_ID:
             st.components.v1.html(f"""
             <script type="text/javascript">

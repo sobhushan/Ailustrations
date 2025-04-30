@@ -6,11 +6,34 @@ from app import info_page
 from datetime import datetime, timedelta
 from set_background import set_gradient_background
 import time
+import streamlit.components.v1 as components # type: ignore
+
+components.html("""
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZS9XFH94QK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZS9XFH94QK');
+</script>
+""", height=0)
+
+components.html("""
+  <head>
+    <title>Ailustrations – AI Image Generator with Human Touch</title>
+    <meta name="description" content="Generate stunning AI images and refine them with expert feedback. Ailustrations blends AI with human creativity." />
+    <meta name="keywords" content="AI image generator, AI art, custom images, image refinement, generative AI, human feedback" />
+    <meta name="robots" content="index, follow" />
+  </head>
+""", height=0)
 
 # Page config
 st.set_page_config(page_title="Ailustrations", 
                    layout="wide",
-                   page_icon="favicon.png",)
+                   page_icon="favicon.png",
+                   alt="AI Image Generator with Human Touch",)
 set_gradient_background()
 
 st.markdown(

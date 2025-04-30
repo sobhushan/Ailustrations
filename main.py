@@ -8,6 +8,11 @@ from set_background import set_gradient_background
 import time
 import streamlit.components.v1 as components # type: ignore
 
+# Page config
+st.set_page_config(page_title="Ailustrations", 
+                   layout="wide",
+                   page_icon="favicon.png",)
+
 components.html("""
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZS9XFH94QK"></script>
@@ -29,10 +34,7 @@ components.html("""
   </head>
 """, height=0)
 
-# Page config
-st.set_page_config(page_title="Ailustrations", 
-                   layout="wide",
-                   page_icon="favicon.png")
+
 set_gradient_background()
 
 st.markdown(

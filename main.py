@@ -15,29 +15,30 @@ st.set_page_config(page_title="Ailustrations",
 
 # Google Analytics tracking using iframe injection
 components.html("""
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZS9XFH94QK"></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3RWTNPQMXF"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-   gtag('config', 'G-ZS9XFH94QK', {
-    'debug_mode': true  // ✅ Helps surface issues in Analytics debug
-  });
 
-  console.log("✅ Google Analytics initialized with ID: G-ZS9XFH94QK");
+  gtag('config', 'G-3RWTNPQMXF', {
+    'debug_mode': true  
+  });
+</script>
+  console.log("✅ Google Analytics initialized successfully.");
 </script>
 """, height=0)
 
 
-components.html("""
-  <head>
-    <title>Ailustrations – AI Image Generator with Human Touch</title>
-    <meta name="description" content="Generate stunning AI images and refine them with expert feedback. Ailustrations blends AI with human creativity." />
-    <meta name="keywords" content="AI image generator, AI art, custom images, image refinement, generative AI, human feedback" />
-    <meta name="robots" content="index, follow" />
-  </head>
-""", height=0)
+# components.html("""
+#   <head>
+#     <title>Ailustrations – AI Image Generator with Human Touch</title>
+#     <meta name="description" content="Generate stunning AI images and refine them with expert feedback. Ailustrations blends AI with human creativity." />
+#     <meta name="keywords" content="AI image generator, AI art, custom images, image refinement, generative AI, human feedback" />
+#     <meta name="robots" content="index, follow" />
+#   </head>
+# """, height=0)
 
 
 set_gradient_background()
@@ -61,7 +62,7 @@ def navbar():
         """
         <style>
         .block-container {
-            padding-top: 1.2rem;
+            padding-top: 0rem;
         }
         .navbar {
             display: flex;
@@ -98,7 +99,7 @@ def navbar():
                 st.session_state.scroll_to = "login"
                 st.rerun()
         with col2:
-            if st.button("Get Started", key="navbar_signup"):
+            if st.button("Signup", key="navbar_signup"):
                 st.session_state.show_signup = True
                 st.session_state.show_login = False
                 st.session_state.scroll_to = "sign-up"

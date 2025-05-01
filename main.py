@@ -25,7 +25,6 @@ components.html("""
   gtag('config', 'G-3RWTNPQMXF', {
     'debug_mode': true  
   });
-</script>
   console.log("✅ Google Analytics initialized successfully.");
 </script>
 """, height=0)

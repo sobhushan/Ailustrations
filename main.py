@@ -135,13 +135,25 @@ def hero_section():
 
 # --- Authentication UI (merged clean version) ---
 def auth_ui():
+    if st.session_state.get("signup_success", False):
+        st.success("🎉 Account created! Redirecting to login...")
+        time.sleep(2)
+        st.session_state.signup_success = False
+        st.session_state.signup_confirmed = True
+        st.rerun()
+
+    if st.session_state.get("signup_confirmed", False):
+        # Now show login form after seeing the message
+        st.session_state.signup_confirmed = False
+        st.session_state.show_login = True
+        st.rerun()
     
     if st.session_state.get('show_login', False):
         st.components.v1.html('<div id="login" style="height:0;"></div>', height=0)
         # st.markdown('<div id="login" style="height:0;"></div>', unsafe_allow_html=True)
         with st.form(key="login_form"):
             st.write("### Login")
-            email = st.text_input("Enter your email", placeholder="name@example.com", key="login_email")
+            email = st.text_input("Enter your email", placeholder="name@example.com", key="login_email", value=st.session_state.get("signup_email_store", ""))
             password = st.text_input("Enter your password", placeholder="••••••••", type="password", key="login_password")
             login_submit = st.form_submit_button("Log In",use_container_width=True)
             if login_submit:
@@ -176,9 +188,14 @@ def auth_ui():
                 with st.spinner("Creating your account..."):
                     res = signup(email, password)
                     if res.status_code == 200:
-                        st.success("🎉 Account created! Please log in now.")
+                        st.session_state.signup_success = True
                         st.session_state.show_signup = False
-                        st.session_state.show_login = True
+                        st.session_state.signup_email_store = email
+                        st.rerun()
+                        # st.success("🎉 Account created! Please log in now.")
+                        # st.session_state.show_signup = False
+                        # st.session_state.show_login = True
+                        # st.rerun()
                     else:
                         st.error(f"❌ {res.json()['error']['message']}")
 

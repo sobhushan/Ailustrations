@@ -146,6 +146,7 @@ def main_app():
             if "user" in st.session_state and "email" in st.session_state["user"]:
                 delete_user_history_from_firebase(st.session_state["user"]["email"])
             st.session_state.history = []
+            st.session_state.image_generated = False
             st.session_state.show_confirm = False
             st.success("✅ New session started. History deleted.")
             st.rerun()
@@ -279,78 +280,78 @@ def main_app():
 
         # ✅ Embed Tawk.to and send prompt/image as a chat message
         st.markdown("---")
-        st.markdown("## 💬 Not satisfied? Consult our Experts")
+        if st.session_state.image_generated:
+            st.markdown("## 💬 Not satisfied? Consult our Experts")
+            expert_toggle = st.toggle("Toggle to send your image and prompt to our expert.", key="expert_toggle")
+            if expert_toggle and TAWK_PROPERTY_ID and TAWK_WIDGET_ID:
+                st.components.v1.html(f"""
+                <script type="text/javascript">
+                    var Tawk_API = Tawk_API || {{}}, Tawk_LoadStart = new Date();
 
-        expert_toggle = st.toggle("Toggle to send your image and prompt to our expert.", key="expert_toggle")
-        if expert_toggle and TAWK_PROPERTY_ID and TAWK_WIDGET_ID:
-            st.components.v1.html(f"""
-            <script type="text/javascript">
-                var Tawk_API = Tawk_API || {{}}, Tawk_LoadStart = new Date();
+                    // Auto-clear previous chat on load
+                    Tawk_API.onLoad = function() {{
+                        console.log("🔁 Resetting previous chat session.");
+                        Tawk_API.endChat();
+                        
+                        // Optional: Send welcome message
+                        setTimeout(function() {{
+                            Tawk_API.addEvent("WelcomeMessage", {{
+                                description: "👋 Let us help you perfect your image!"
+                            }});
+                        }}, 1000);
+                    }};
 
-                // Auto-clear previous chat on load
-                Tawk_API.onLoad = function() {{
-                    console.log("🔁 Resetting previous chat session.");
-                    Tawk_API.endChat();
-                    
-                    // Optional: Send welcome message
-                    setTimeout(function() {{
-                        Tawk_API.addEvent("WelcomeMessage", {{
-                            description: "👋 Let us help you perfect your image!"
-                        }});
-                    }}, 1000);
-                }};
+                    (function() {{
+                        var s1 = document.createElement("script"),
+                            s0 = document.getElementsByTagName("script")[0];
+                        s1.async = true;
+                        s1.src = 'https://embed.tawk.to/{TAWK_PROPERTY_ID}/{TAWK_WIDGET_ID}';
+                        s1.charset = 'UTF-8';
+                        s1.setAttribute('crossorigin','*');
+                        s0.parentNode.insertBefore(s1, s0);
+                    }})();
 
-                (function() {{
-                    var s1 = document.createElement("script"),
-                        s0 = document.getElementsByTagName("script")[0];
-                    s1.async = true;
-                    s1.src = 'https://embed.tawk.to/{TAWK_PROPERTY_ID}/{TAWK_WIDGET_ID}';
-                    s1.charset = 'UTF-8';
-                    s1.setAttribute('crossorigin','*');
-                    s0.parentNode.insertBefore(s1, s0);
-                }})();
+                    // Send prompt & image to support via event
+                    function waitForTawk() {{
+                        if (typeof Tawk_API.addEvent === "function") {{
+                            const prompt = localStorage.getItem("latestPrompt") || "No prompt provided";
+                            const image = localStorage.getItem("latestImage") || "";
 
-                // Send prompt & image to support via event
-                function waitForTawk() {{
-                    if (typeof Tawk_API.addEvent === "function") {{
-                        const prompt = localStorage.getItem("latestPrompt") || "No prompt provided";
-                        const image = localStorage.getItem("latestImage") || "";
-
-                        if (!image) {{
-                            console.warn("⚠️ No image found in localStorage.");
-                            return;
-                        }}
-
-                        const confirmed = confirm("⚠️ We will send your prompt and image to our expert. Are you sure you want to continue?");
-                        if (!confirmed) {{
-                            console.log("❌ User cancelled expert request.");
-                            return;
-                        }}
-
-                        const preview = image.length > 100 ? image.slice(0, 100) + "..." : image;
-
-                        const message = "🧠 Image Help Request\\n" +
-                                        "Prompt: " + prompt + "\\n" +
-                                        "Image (Base64 Preview): " + preview;
-
-                        Tawk_API.addEvent("ImageGenerated", {{
-                            description: message
-                        }}, function(error) {{
-                            if (error) {{
-                                console.error("❌ Failed to send chat message:", error);
-                            }} else {{
-                                console.log("✅ Chat message sent with prompt and image preview.");
+                            if (!image) {{
+                                console.warn("⚠️ No image found in localStorage.");
+                                return;
                             }}
-                        }});
-                    }} else {{
-                        console.log("⏳ Waiting for Tawk API...");
-                        setTimeout(waitForTawk, 1000);
-                    }}
-                }}
 
-                // Trigger message on page load (after Tawk is ready)
-                window.addEventListener("load", function() {{
-                    setTimeout(waitForTawk, 2000);
-                }});
-            </script>
-            """, height=500)
+                            const confirmed = confirm("⚠️ We will send your prompt and image to our expert. Are you sure you want to continue?");
+                            if (!confirmed) {{
+                                console.log("❌ User cancelled expert request.");
+                                return;
+                            }}
+
+                            const preview = image.length > 100 ? image.slice(0, 100) + "..." : image;
+
+                            const message = "🧠 Image Help Request\\n" +
+                                            "Prompt: " + prompt + "\\n" +
+                                            "Image (Base64 Preview): " + preview;
+
+                            Tawk_API.addEvent("ImageGenerated", {{
+                                description: message
+                            }}, function(error) {{
+                                if (error) {{
+                                    console.error("❌ Failed to send chat message:", error);
+                                }} else {{
+                                    console.log("✅ Chat message sent with prompt and image preview.");
+                                }}
+                            }});
+                        }} else {{
+                            console.log("⏳ Waiting for Tawk API...");
+                            setTimeout(waitForTawk, 1000);
+                        }}
+                    }}
+
+                    // Trigger message on page load (after Tawk is ready)
+                    window.addEventListener("load", function() {{
+                        setTimeout(waitForTawk, 2000);
+                    }});
+                </script>
+                """, height=500)

@@ -173,6 +173,8 @@ def auth_ui():
                         st.session_state.show_login = False
                         st.session_state.show_signup = False
                         st.session_state.show_loading = True
+                        st.session_state.user_email = data["email"]  
+                        # st.session_state.user_name = data.get("displayName", "Guest")
                         st.rerun()
                     else:
                         st.error(f"❌ {res.json()['error']['message']}")

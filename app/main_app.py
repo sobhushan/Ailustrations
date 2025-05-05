@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from auth.firebase_utils import save_history, load_history
 from firebase_admin import firestore # type: ignore
 import streamlit.components.v1 as components # type: ignore
+import uuid
 
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -118,7 +119,7 @@ def main_app():
             else:
                 st.session_state.history = []
         if "image_generated" not in st.session_state:
-            st.session_state.image_generated = False
+            st.session_state.image_generated = len(st.session_state.history) > 0
 
 
         # Sidebar button
@@ -283,7 +284,15 @@ def main_app():
         if st.session_state.image_generated:
             st.markdown("## 💬 Not satisfied? Consult our Experts")
             expert_toggle = st.toggle("Toggle to send your image and prompt to our expert.", key="expert_toggle")
+
             if expert_toggle and TAWK_PROPERTY_ID and TAWK_WIDGET_ID:
+                email = st.session_state.get("user_email", f"guest_{uuid.uuid4().hex[:6]}@gmail.com")
+                name = email.split('@')[0] if email else "Guest"
+                # st.write(f"**Email:** {email}")
+                # st.write(f"**Name:** {name}")
+                safe_email = email.replace("'", "\\'")
+                safe_name = name.replace("'", "\\'")
+
                 st.components.v1.html(f"""
                 <script type="text/javascript">
                     var Tawk_API = Tawk_API || {{}}, Tawk_LoadStart = new Date();
@@ -291,13 +300,42 @@ def main_app():
                     // Auto-clear previous chat on load
                     Tawk_API.onLoad = function() {{
                         console.log("🔁 Resetting previous chat session.");
-                        Tawk_API.endChat();
+                        try {{
+                            Tawk_API.setVisitorCookie(null);
+                            console.log("✅ Cleared Tawk visitor cookie.");
+                        }} catch (e) {{
+                            console.warn("⚠️ setVisitorCookie not supported:", e);
+                        }}
+                        try {{
+                            Tawk_API.endChat();
+                        }} catch (e) {{
+                            console.warn("⚠️ endChat not available:", e);
+                        }}
                         
+                         // Isolate user session
+                        console.log("Email before setting:", "{safe_email}");
+                        try {{
+                            Tawk_API.setAttributes({{
+                                'name': '{safe_name}',
+                                'email': '{safe_email}'
+                            }}, function(error) {{
+                                if (error) {{
+                                    console.error("❌ Failed to set Tawk user session:", error);
+                                }} else {{
+                                    console.log("✅ User session initialized.");
+                                }}
+                            }});
+                        }} catch (e) {{
+                            console.error("❌ Error during setAttributes:", e);
+                        }}             
+                    
                         // Optional: Send welcome message
                         setTimeout(function() {{
-                            Tawk_API.addEvent("WelcomeMessage", {{
-                                description: "👋 Let us help you perfect your image!"
-                            }});
+                            if (typeof Tawk_API.addEvent === "function") {{
+                                Tawk_API.addEvent("WelcomeMessage", {{
+                                    description: "👋 Let us help you perfect your image!"
+                                }});
+                            }}
                         }}, 1000);
                     }};
 

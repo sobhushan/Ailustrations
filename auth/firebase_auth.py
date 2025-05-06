@@ -14,6 +14,8 @@ FIREBASE_KEY_B64 = os.getenv("FIREBASE_KEY_B64")
 FIREBASE_SIGNUP_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={FIREBASE_API_KEY}"
 FIREBASE_SIGNIN_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
 FIREBASE_REFRESH_URL = f"https://securetoken.googleapis.com/v1/token?key={FIREBASE_API_KEY}"
+FIREBASE_VERIFY_EMAIL_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={FIREBASE_API_KEY}"
+
 
 FIREBASE_KEY_DICT = json.loads(base64.b64decode(FIREBASE_KEY_B64).decode("utf-8"))
 
@@ -21,13 +23,32 @@ if not firebase_admin._apps:
     cred = credentials.Certificate(FIREBASE_KEY_DICT) 
     firebase_admin.initialize_app(cred)
 
+def send_verification_email(id_token: str):
+    payload = {
+        "requestType": "VERIFY_EMAIL",
+        "idToken": id_token
+    }
+    response = requests.post(FIREBASE_VERIFY_EMAIL_URL, data=payload)
+    return response 
+
 def signup(email: str, password: str):
     payload = {"email": email, "password": password, "returnSecureToken": True}
-    return requests.post(FIREBASE_SIGNUP_URL, data=payload)
+    response = requests.post(FIREBASE_SIGNUP_URL, data=payload)
+    if response.status_code == 200:
+        id_token = response.json()["idToken"]
+        send_verification_email(id_token)
+    
+    return response
 
 def login(email: str, password: str):
     payload = {"email": email, "password": password, "returnSecureToken": True}
-    return requests.post(FIREBASE_SIGNIN_URL, data=payload)
+    response = requests.post(FIREBASE_SIGNIN_URL, data=payload)
+    if response.status_code == 200:
+        data = response.json()
+        if not data.get("emailVerified", False):
+            return {"error": "Email not verified. Please check your inbox."}
+    
+    return response
 
 # ✅ Token verification using Firebase Admin
 def verify_id_token(id_token: str):

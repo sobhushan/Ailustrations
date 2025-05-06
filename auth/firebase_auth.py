@@ -43,10 +43,10 @@ def signup(email: str, password: str):
 def login(email: str, password: str):
     payload = {"email": email, "password": password, "returnSecureToken": True}
     response = requests.post(FIREBASE_SIGNIN_URL, data=payload)
-    if response.status_code == 200:
-        data = response.json()
-        if not data.get("emailVerified", False):
-            return {"error": "Email not verified. Please check your inbox."}
+    # if response.status_code == 200:
+    #     data = response.json()
+    #     if not data.get("emailVerified", False):
+    #         return {"error": "Email not verified. Please check your inbox."}
     
     return response
 

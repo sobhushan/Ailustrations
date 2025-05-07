@@ -1,11 +1,10 @@
 # main.py
 import streamlit as st  # type: ignore
 from app.main_app import main_app
-from auth.firebase_auth import login, signup, verify_id_token, refresh_id_token
+from auth.firebase_auth import login, signup, verify_id_token, refresh_id_token, send_password_reset_email
 from app import info_page
 from datetime import datetime, timedelta
 from set_background import set_gradient_background
-from auth import firebase_auth as auth
 import time
 import streamlit.components.v1 as components # type: ignore
 
@@ -226,14 +225,9 @@ def forgot_password_ui():
         email = st.text_input("Enter your email", key="forgot_email", placeholder="Enter your email")
         if st.button("Send Password Reset Email"):
             if email:
-                lookup_res = auth.check_if_email_exists(email)
-                if lookup_res.status_code != 200:
-                    st.error("❌ Email not found. Please sign up first.")
-                    return
-
-                res = auth.send_password_reset_email(email)
+                res = send_password_reset_email(email)
                 if res.status_code == 200:
-                    st.success("✅ Password reset email sent. Please check your inbox.")
+                    st.success("✅ If your email is registered, a password reset link will be sent. Please check your inbox.")
                 else:
                     st.error(f"❌ Failed: {res.json().get('error', {}).get('message', 'Unknown error')}")
             else:

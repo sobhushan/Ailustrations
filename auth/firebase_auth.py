@@ -87,9 +87,3 @@ def send_password_reset_email(email: str):
     }
     response = requests.post(FIREBASE_RESET_PASSWORD_URL, data=payload)
     return response
-
-def check_if_email_exists(email: str):
-    payload = {"email": [email]}
-    url = f"https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={FIREBASE_API_KEY}"
-    response = requests.post(url, json=payload)
-    return response

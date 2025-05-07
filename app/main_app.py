@@ -288,8 +288,6 @@ def main_app():
             if expert_toggle and TAWK_PROPERTY_ID and TAWK_WIDGET_ID:
                 email = st.session_state.get("user_email", f"guest_{uuid.uuid4().hex[:6]}@gmail.com")
                 name = email.split('@')[0] if email else "Guest"
-                # st.write(f"**Email:** {email}")
-                # st.write(f"**Name:** {name}")
                 safe_email = email.replace("'", "\\'")
                 safe_name = name.replace("'", "\\'")
 

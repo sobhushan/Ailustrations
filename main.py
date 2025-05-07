@@ -159,7 +159,9 @@ def auth_ui():
             if login_submit:
                 with st.spinner("Logging you in..."):
                     res = login(email, password)
-                    if res.status_code == 200:
+                    if isinstance(res, dict) and "error" in res:
+                        st.error(res["error"])
+                    elif hasattr(res, "status_code") and res.status_code == 200:
                         data = res.json()
                         refresh_token = data["refreshToken"]
                         st.session_state["user"] = {

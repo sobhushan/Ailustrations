@@ -43,11 +43,23 @@ def signup(email: str, password: str):
 def login(email: str, password: str):
     payload = {"email": email, "password": password, "returnSecureToken": True}
     response = requests.post(FIREBASE_SIGNIN_URL, data=payload)
-    # if response.status_code == 200:
-    #     data = response.json()
-    #     if not data.get("emailVerified", False):
-    #         return {"error": "Email not verified. Please check your inbox."}
-    
+    if response.status_code == 200:
+        data = response.json()
+        id_token = data["idToken"]
+
+        # ✅ Check emailVerified via getAccountInfo
+        verify_payload = {"idToken": id_token}
+        info_res = requests.post(
+            f"https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={FIREBASE_API_KEY}",
+            data=verify_payload,
+        )
+
+        if info_res.status_code == 200:
+            users = info_res.json().get("users", [])
+            if users and not users[0].get("emailVerified", False):
+                return {"error": "Email not verified. Please check your inbox."}
+        else:
+            return {"error": "Could not verify email status."}
     return response
 
 # ✅ Token verification using Firebase Admin

@@ -5,6 +5,7 @@ from auth.firebase_auth import login, signup, verify_id_token, refresh_id_token
 from app import info_page
 from datetime import datetime, timedelta
 from set_background import set_gradient_background
+from auth import firebase_auth as auth
 import time
 import streamlit.components.v1 as components # type: ignore
 
@@ -180,6 +181,7 @@ def auth_ui():
                         st.rerun()
                     else:
                         st.error(f"❌ {res.json()['error']['message']}")
+        forgot_password_ui()
 
     if st.session_state.get('show_signup', False):
         st.markdown('<div id="sign-up" style="height:0;"></div>', unsafe_allow_html=True)
@@ -202,6 +204,40 @@ def auth_ui():
                         # st.rerun()
                     else:
                         st.error(f"❌ {res.json()['error']['message']}")
+        
+
+def forgot_password_ui():
+    st.markdown("""
+        <style>
+        .stExpander label {
+            color: white !important;
+        }
+        @media (prefers-color-scheme: light) {
+                [data-testid="stExpander"] {
+                    border: 1px solid #F0F2F6;   
+                    border-radius: 10px;
+                    padding: 5px;
+                    margin-top: 10px;
+                }
+        </style>
+    """, unsafe_allow_html=True)
+
+    with st.expander("🔐 Forgot Password? Click to reset your password"):
+        email = st.text_input("Enter your email", key="forgot_email", placeholder="Enter your email")
+        if st.button("Send Password Reset Email"):
+            if email:
+                lookup_res = auth.check_if_email_exists(email)
+                if lookup_res.status_code != 200:
+                    st.error("❌ Email not found. Please sign up first.")
+                    return
+
+                res = auth.send_password_reset_email(email)
+                if res.status_code == 200:
+                    st.success("✅ Password reset email sent. Please check your inbox.")
+                else:
+                    st.error(f"❌ Failed: {res.json().get('error', {}).get('message', 'Unknown error')}")
+            else:
+                st.warning("⚠️ Please enter your email.")
 
 # Trigger scroll after rerun
 if "scroll_to" in st.session_state:

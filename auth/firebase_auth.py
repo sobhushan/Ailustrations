@@ -15,7 +15,7 @@ FIREBASE_SIGNUP_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signU
 FIREBASE_SIGNIN_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
 FIREBASE_REFRESH_URL = f"https://securetoken.googleapis.com/v1/token?key={FIREBASE_API_KEY}"
 FIREBASE_VERIFY_EMAIL_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={FIREBASE_API_KEY}"
-
+FIREBASE_RESET_PASSWORD_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={FIREBASE_API_KEY}"
 
 FIREBASE_KEY_DICT = json.loads(base64.b64decode(FIREBASE_KEY_B64).decode("utf-8"))
 
@@ -79,3 +79,17 @@ def refresh_id_token(refresh_token: str):
     }
     response = requests.post(FIREBASE_REFRESH_URL, data=payload)
     return response.json()
+
+def send_password_reset_email(email: str):
+    payload = {
+        "requestType": "PASSWORD_RESET",
+        "email": email
+    }
+    response = requests.post(FIREBASE_RESET_PASSWORD_URL, data=payload)
+    return response
+
+def check_if_email_exists(email: str):
+    payload = {"email": [email]}
+    url = f"https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={FIREBASE_API_KEY}"
+    response = requests.post(url, json=payload)
+    return response

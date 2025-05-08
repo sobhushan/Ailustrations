@@ -42,19 +42,6 @@ components.html("""
 
 set_gradient_background()
 
-st.markdown(
-    """
-    <style>
-    hr {
-        border: none !important;
-        border-top: 0.5px solid #67686e !important; 
-        margin: 8px 0 !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 # --- Navbar ---
 def navbar():
     st.markdown(
@@ -85,9 +72,6 @@ def navbar():
     )
 
     nav_col1, nav_col2 = st.columns([8, 2])
-
-    # with nav_col1:
-    #     st.markdown("<h1 style='color: white; text-align: left; font-size: 70px;'>Welcome to <span style='color:#6C63FF;'>Ailustrations</span></h1>", unsafe_allow_html=True)
 
     with nav_col2:
         col1, col2 = st.columns(2)

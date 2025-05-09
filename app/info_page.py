@@ -42,7 +42,7 @@ def main():
         <p style="margin: 0"><a href="#what-is-ailustrations" style="text-decoration: none">What is Ailustrations?</a></p>
         <p style="margin: 0"><a href="#ai-powered-art-creation-fast-creative-and-adaptive" style="text-decoration: none">AI Features</a></p>
         <p style="margin: 0"><a href="#when-ai-falls-short-bridging-the-gap-with-human-expertise" style="text-decoration: none">Expert Consultation</a></p>
-        <p style="margin: 0"><a href="#d3605742" style="text-decoration: none">FAQ</a></p>
+        <p style="margin: 0"><a href="#frequently-asked-questions" style="text-decoration: none">FAQ</a></p>
         """, unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 3, 1])

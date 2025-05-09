@@ -285,7 +285,7 @@ def main_app():
             expert_toggle = st.toggle("Toggle to send your image and prompt to our expert.", key="expert_toggle")
 
             if expert_toggle and TAWK_PROPERTY_ID and TAWK_WIDGET_ID:
-                email = st.session_state.get("user_email", f"guest_{uuid.uuid4().hex[:6]}@example.com")
+                email = st.session_state.get("user_email", f"guest_{uuid.uuid4().hex[:6]}@gmail.com")
                 name = email.split('@')[0] if email else "Guest"
                 safe_email = email.replace("'", "\\'")
                 safe_name = name.replace("'", "\\'")
@@ -295,7 +295,13 @@ def main_app():
 
                     Tawk_API.onLoad = function() {{
                         console.log("🎯 Tawk loaded. Will reset and set session.");
-
+                        try {{
+                            // Set Tawk status to always active (available)
+                            Tawk_API.setStatus('online');
+                            console.log("✅ Tawk status set to online.");
+                        }} catch (e) {{
+                            console.error("Error setting status:", e);
+                        }}
                         // Try to reset the chat session
                         try {{
                             if (typeof Tawk_API.endChat === "function") {{

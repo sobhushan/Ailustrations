@@ -13,23 +13,6 @@ st.set_page_config(page_title="Ailustrations",
                    layout="wide",
                    page_icon="favicon.png",)
 
-# Google Analytics tracking using iframe injection
-components.html("""
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-3RWTNPQMXF"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-3RWTNPQMXF', {
-    'debug_mode': true  
-  });
-  console.log("✅ Google Analytics initialized successfully.");
-</script>
-""", height=0)
-
-
 components.html("""
   <head>
     <title>Ailustrations – AI Image Generator with Human Touch</title>
@@ -152,7 +135,6 @@ def hero_section():
     with col2:
         st.image("mascot.png", 
                  width=550)
-                #  use_container_width=True)
 
 # --- Authentication UI (merged clean version) ---
 def auth_ui():
@@ -197,7 +179,6 @@ def auth_ui():
                         st.session_state.show_signup = False
                         st.session_state.show_loading = True
                         st.session_state.user_email = data["email"]  
-                        # st.session_state.user_name = data.get("displayName", "Guest")
                         st.rerun()
                     else:
                         st.error(f"❌ {res.json()['error']['message']}")

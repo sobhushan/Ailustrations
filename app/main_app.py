@@ -338,7 +338,6 @@ def main_app():
                             }}
                         }}, 1000);
                     }};
-                    console.log("Cookies:", document.cookie);
 
                     // Load Tawk script
                     (function() {{

@@ -1,4 +1,5 @@
 import streamlit as st # type: ignore
+import streamlit.components.v1 as components # type: ignore
 
 def main():
     st.markdown("""
@@ -36,13 +37,14 @@ def main():
     """, unsafe_allow_html=True)
 
     with st.sidebar:
-        st.markdown("---")
+        # st.markdown("---")
         st.markdown("### Table of Contents")
         st.markdown("""
         <p style="margin: 0"><a href="#what-is-ailustrations" style="text-decoration: none">What is Ailustrations?</a></p>
         <p style="margin: 0"><a href="#ai-powered-art-creation-fast-creative-and-adaptive" style="text-decoration: none">AI Features</a></p>
         <p style="margin: 0"><a href="#when-ai-falls-short-bridging-the-gap-with-human-expertise" style="text-decoration: none">Expert Consultation</a></p>
-        <p style="margin: 0"><a href="#frequently-asked-questions" style="text-decoration: none">FAQ</a></p>
+        <p style="margin: 0"><a href="#1dc04a45" style="text-decoration: none">Demo Walkthrough</a></p>
+        <p style="margin: 0"><a href="#d3605742" style="text-decoration: none">FAQs</a></p>        
         """, unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 3, 1])
@@ -94,6 +96,32 @@ def main():
         #### **A Collaborative Approach**
         At Ailustrations, we believe in the power of **collaboration**. Our AI and human experts work together, offering a unique combination of **automation and artistry** to help you create the best visuals possible. Whether you’re designing for personal use or professional projects, **Ailustrations** ensures that you have the tools and expertise needed to bring your ideas to life.
 
+        ---
+        ### 🎮 Interactive Demo
+        Explore how our platform works through this interactive walkthrough powered by Arcade.
+        """, unsafe_allow_html=True)
+
+        arcade_html = """
+        <!--ARCADE EMBED START-->
+        <div style="position: relative; padding-bottom: calc(47.46527777777778% + 5px); height: 0; width: 100%;">
+            <iframe 
+                src="https://demo.arcade.software/mEu6wBToC1CkkLEmZxmg?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true" 
+                title="Ailustrations Demo" 
+                frameborder="0" 
+                loading="lazy" 
+                webkitallowfullscreen 
+                mozallowfullscreen 
+                allowfullscreen 
+                allow="clipboard-write" 
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; color-scheme: light;">
+            </iframe>
+        </div>
+        <!--ARCADE EMBED END-->
+        """
+
+        components.html(arcade_html, height=350, scrolling=False)
+
+        st.markdown("""
         --- 
         ### ❓ Frequently Asked Questions
 
@@ -116,41 +144,3 @@ def main():
         ### 📬 Still have questions?
         Feel free to consult our expert from the image interface or reach out via [Linkedin](https://www.linkedin.com/in/somya-bhushan/)
         """, unsafe_allow_html=True)
-
-
-    #     st.markdown("""
-    #     Welcome to **Ailustrations** – your all-in-one AI-powered image generation platform!
-
-    #     ---  
-    #     ### 📌 What is Ailustrations?
-    #     Ailustrations allows users to generate stunning visuals using cutting-edge AI, refine them through feedback, and even consult experts for perfection.
-
-    #     - 🚀 Powered by `Stable Diffusion XL`
-    #     - 🧠 Real-time feedback and image enhancement
-    #     - 💬 Live chat support with experts
-    #     - 💾 Download and save generated art
-
-    #     ---
-
-    #    ### ❓ Frequently Asked Questions
-
-    #     ##### **Q. Do I need to log in?**  
-    #     Yes, logging in is required to personalize your experience. It allows us to save your work, enable chat support, and offer tailored features such as saving your image history and preferences.
-
-    #     ##### **Q. Can I download images?**  
-    #     Absolutely! Once your image is generated, you'll find a download button that allows you to easily save your artwork. We ensure you have complete ownership of the creations you generate.
-
-    #     ##### **Q. Can I give feedback and regenerate images?**  
-    #     Definitely! After generating an image, you can provide feedback using our chat-style interface. Our AI will use your input to instantly regenerate and refine the image, helping you perfect your vision.
-
-    #     ##### **Q. Can I talk to a human expert?**  
-    #     Yes, you can! If you need expert guidance or have specific questions, click on the “Consult an Expert” button in the image thread. This will connect you with a professional via Tawk.to for real-time assistance.
-
-    #     ##### **Q. Where are my images stored?**  
-    #     Your generated images are temporarily stored within the platform. After generation, you can download them immediately. 
-
-    #     ---
-
-    #     ### 📬 Still have questions?
-    #     Feel free to consult our expert from the image interface or reach out via [Linkedin](https://www.linkedin.com/in/somya-bhushan/)
-    #     """)

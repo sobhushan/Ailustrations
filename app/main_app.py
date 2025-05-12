@@ -123,7 +123,7 @@ def main_app():
 
 
         # Sidebar button
-        st.sidebar.markdown("---")
+        # st.sidebar.markdown("---")
         if "show_confirm" not in st.session_state:
             st.session_state.show_confirm = False
 

@@ -14,34 +14,36 @@ st.set_page_config(page_title="Ailustrations",
                    page_icon="favicon.png",)
 
 # Google Analytics tracking using iframe injection
-components.html("""
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-3RWTNPQMXF"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-3RWTNPQMXF', {
-    'debug_mode': true  
-  });
-  console.log("✅ Google Analytics initialized successfully.");
-</script>
-""", height=0)
-
-
 # components.html("""
-#   <head>
-#     <title>Ailustrations – AI Image Generator with Human Touch</title>
-#     <meta name="description" content="Generate stunning AI images and refine them with expert feedback. Ailustrations blends AI with human creativity." />
-#     <meta name="keywords" content="AI image generator, AI art, custom images, image refinement, generative AI, human feedback" />
-#     <meta name="robots" content="index, follow" />
-#   </head>
+# <!-- Google tag (gtag.js) -->
+# <script async src="https://www.googletagmanager.com/gtag/js?id=G-3RWTNPQMXF"></script>
+# <script>
+#   window.dataLayer = window.dataLayer || [];
+#   function gtag(){dataLayer.push(arguments);}
+#   gtag('js', new Date());
+
+#   gtag('config', 'G-3RWTNPQMXF', {
+#     'debug_mode': true  
+#   });
+#   console.log("✅ Google Analytics initialized successfully.");
+# </script>
 # """, height=0)
 
 
-set_gradient_background()
+components.html("""
+  <head>
+    <title>Ailustrations – AI Image Generator with Human Touch</title>
+    <meta name="description" content="Generate stunning AI images and refine them with expert feedback. Ailustrations blends AI with human creativity." />
+    <meta name="keywords" content="AI image generator, AI art, custom images, image refinement, generative AI, human feedback" />
+    <meta name="robots" content="index, follow" />
+  </head>
+""", height=0)
 
+if st.session_state.get("show_info_page"):
+    info_page.main() 
+    st.stop()
+
+set_gradient_background()
 # --- Navbar ---
 def navbar():
     st.markdown(
@@ -71,17 +73,52 @@ def navbar():
         unsafe_allow_html=True
     )
 
-    nav_col1, nav_col2 = st.columns([8, 2])
+    nav_col1, nav_col2 = st.columns([8, 3])
 
     with nav_col2:
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         with col1:
+            st.markdown("""
+                <style>
+                .about-link a {
+                    color: white;
+                    text-decoration: none;
+                    background-color: transparent;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: 500;
+                    transition: background-color 0.3s ease, text-decoration 0.3s ease;
+                    display: inline-block;
+                    width: 100%;
+                    height: 50px;
+                    line-height: 50px;
+                    text-align: center;
+                }
+                .about-link a:hover,
+                .about-link a:active {
+                    background: linear-gradient(135deg, #6C63FF 0%, #9C88FF 100%);
+                    color: #f0f0f0;
+                    text-decoration: none;
+                }
+                </style>
+                <div class="about-link">
+                    <a href="?about_us=true">About Us</a>
+                </div>
+            """, unsafe_allow_html=True)
+
+        # Check query parameter using new API
+        params = st.query_params
+        if "about_us" in params:
+            st.session_state.show_info_page = True
+            st.rerun()
+
+        with col2:
             if st.button("Login", key="navbar_login"):
                 st.session_state.show_login = True
                 st.session_state.show_signup = False
                 st.session_state.scroll_to = "login"
                 st.rerun()
-        with col2:
+        with col3:
             if st.button("Signup", key="navbar_signup"):
                 st.session_state.show_signup = True
                 st.session_state.show_login = False
@@ -205,7 +242,7 @@ def forgot_password_ui():
         </style>
     """, unsafe_allow_html=True)
 
-    with st.expander("🔐 Forgot Password? Click to reset your password"):
+    with st.expander("Forgot Password? Click to reset your password"):
         email = st.text_input("Enter your email", key="forgot_email", placeholder="Enter your email")
         if st.button("Send Password Reset Email"):
             if email:
@@ -372,7 +409,7 @@ def main():
                 options=nav_options,
                 index=nav_options.index(st.session_state.get("page", "Main App")) if st.session_state.get("page") != "Logout" else 0
             )
-
+        st.sidebar.markdown("---")
         # Navigation Handling
         if nav_choice == "Logout":
             st.session_state.clear()

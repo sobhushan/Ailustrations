@@ -1,10 +1,10 @@
-# Imagino
+# Ailustrations
 
-**Imagino** is an innovative Streamlit-based application that enables users to generate stunning, AI-powered images using Hugging Face's **Stable Diffusion** model. With **real-time feedback** and an integrated **expert consultation** feature, **Imagino** creates a bridge between AI-generated art and human refinement. When AI falls short, users can directly connect with professional designers to improve and perfect their images.
+**Ailustrations** is an innovative Streamlit-based application that enables users to generate stunning, AI-powered images using Hugging Face's **Stable Diffusion** model. With **real-time feedback** and an integrated **expert consultation** feature, **Ailustrations** creates a bridge between AI-generated art and human refinement. When AI falls short, users can directly connect with professional designers to improve and perfect their images.
 ## Project Structure
 
 ```
-Imagino/
+Ailustrations/
 ├── .env                  # Environment variables
 ├── .gitignore            # Git ignore file
 ├── main.py               # Entry point of the application
@@ -73,8 +73,8 @@ pip install -r requirements.txt
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/sobhushan/Imagino.git
-   cd imagino
+   git clone https://github.com/sobhushan/Ailustrations.git
+   cd Ailustrations
    ```
 
 2. Create a `.env` file in the root directory and add the required environment variables as shown above.
@@ -103,14 +103,14 @@ pip install -r requirements.txt
 
 ## How It Works: Bridging the Gap Between AI and Human Expertise
 
-Imagino isn't just another image generation tool; it’s a hybrid platform that blends the creative power of AI with the nuanced expertise of human designers. Here’s how it works:
+Ailustrations isn't just another image generation tool; it’s a hybrid platform that blends the creative power of AI with the nuanced expertise of human designers. Here’s how it works:
 
 - **AI-Powered Art Generation**: The application uses **Stable Diffusion XL** to generate images from simple prompts, offering fast, high-quality visual outputs. This is great for quickly brainstorming concepts or creating content for projects.
 - **Instant Image Refinement**: Sometimes, AI doesn't fully capture your vision. That's where the **real-time feedback loop** comes in. You can immediately communicate with the AI to refine your designs through a chat interface, making quick changes to styles, colors, and elements.
-- **Human Expertise for Perfection**: If the AI isn't quite getting it right, Imagino bridges the gap by offering the ability to directly connect with a **human expert designer** via the **Tawk.to chat widget**. Whether you need design tweaks, specific adjustments, or a fresh perspective, a professional designer can step in to enhance your image.
+- **Human Expertise for Perfection**: If the AI isn't quite getting it right, Ailustrations bridges the gap by offering the ability to directly connect with a **human expert designer** via the **Tawk.to chat widget**. Whether you need design tweaks, specific adjustments, or a fresh perspective, a professional designer can step in to enhance your image.
 - **Seamless Transition Between AI and Human**: The flow from AI to human expert is smooth and intuitive, ensuring that users can keep their creative process moving forward without interruption.
 
-## Why Choose Imagino?
+## Why Choose Ailustrations?
 
 - **Speed & Efficiency**: AI generates instant results, but when it doesn’t meet your expectations, human designers are just a click away.
 - **Creative Freedom**: Enjoy a variety of AI-generated options, then work with a designer to fine-tune them to your precise needs.
@@ -128,7 +128,7 @@ Imagino isn't just another image generation tool; it’s a hybrid platform that 
 
 
 ##  Live Demo
-🌐 [Imagino App](https://imagino-image-gen-2025.streamlit.app/)
+🌐 [Ailustrations App](https://ailustrations.streamlit.app/)
 
 > 🛠️ _This app is under active development. Features may evolve or temporarily break._
 
